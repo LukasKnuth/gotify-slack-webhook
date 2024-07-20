@@ -1,2 +1,5 @@
 # Build output
 *.so
+
+# Verify against server mod list
+gotify-server.mod
