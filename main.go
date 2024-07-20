@@ -10,6 +10,9 @@ func GetGotifyPluginInfo() plugin.Info {
 		Name:        "Slack Incoming Webhook Support",
 		Description: "Allows Gotify to _receive_ Slack Incoming Webhook calls. For tools that integrate with Slack by accepting a Slack Incoming Webhook URL, simply put the Gotify URL. The Plugin will accept the Webhook and create a Gotify message from it.",
 		ModulePath:  "github.com/LukasKnuth/gotify-slack-webhook",
+		Website:     "github.com/LukasKnuth/gotify-slack-webhook",
+		License:     "MIT",
+		Author:      "Lukas Knuth",
 	}
 }
 
