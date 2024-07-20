@@ -1,6 +1,11 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
+	"net/url"
+
+	"github.com/gin-gonic/gin"
 	"github.com/gotify/plugin-api"
 )
 
@@ -16,8 +21,42 @@ func GetGotifyPluginInfo() plugin.Info {
 	}
 }
 
+const (
+	webhook_path = "/webhook/slack/:app_token"
+)
+
 // Plugin is plugin instance
-type Plugin struct{}
+type Plugin struct {
+	msgHandler plugin.MessageHandler
+	basePath   string
+}
+
+// Called by the SDK later on, allows us to send messages to the user.
+func (c *Plugin) SetMessageHandler(msgHandler plugin.MessageHandler) {
+	// TODO I _think_ this doesn't allow us to send messages "on behalv" of existing apps.
+	// Could call Gotify REST API instead...
+	c.msgHandler = msgHandler
+}
+
+func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
+	// TODO Does it make sense to use ENV to override the base path? Allows cluster-internal trafik only
+	c.basePath = basePath
+	mux.POST(webhook_path, func(req *gin.Context) {
+		msg, err := ToMessage()
+		if err != nil {
+			req.String(http.StatusBadRequest, "Could not parse body to BlockKit")
+		} else {
+			//token := req.Param("app_token")
+			c.msgHandler.SendMessage(msg)
+			req.String(http.StatusOK, "OK")
+		}
+	})
+}
+
+func (c *Plugin) GetDisplay(location *url.URL) string {
+	fullUrl := location.JoinPath(c.basePath, webhook_path)
+	return fmt.Sprintf("Webhook URL: `%s`", fullUrl)
+}
 
 // Enable implements plugin.Plugin
 func (c *Plugin) Enable() error {
