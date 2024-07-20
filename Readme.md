@@ -6,4 +6,8 @@ Allows Gotify to receive [Slack Incoming Webhook](https://api.slack.com/messagin
 
 - [Slack Incoming Webhook documentation](https://api.slack.com/messaging/webhooks)
 - [Slack BlockKit](https://api.slack.com/block-kit)
-- [Gotify Plugin docs](https://gotify.net/docs/plugin)
+- [Gotify Plugin - Getting started](https://gotify.net/docs/plugin)
+- [Gotify Plugin - Reference](https://gotify.net/docs/plugin-write)
+- [Gotify Plugin API](https://pkg.go.dev/github.com/gotify/plugin-api)
+- [Gotify Plugin Template](https://github.com/gotify/plugin-template)
+- [Gin Web Framework](https://gin-gonic.com/docs/examples/param-in-path/) - For the Webhook integration
