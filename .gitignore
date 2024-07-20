@@ -1,5 +1,6 @@
 # Build output
 *.so
+_build/
 
 # Verify against server mod list
 gotify-server.mod
