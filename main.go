@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotify/plugin-api"
+	"github.com/lukasknuth/gotify-slack-webhook/gotify"
 )
 
 // GetGotifyPluginInfo returns gotify plugin info
@@ -46,7 +47,7 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 	// TODO Does it make sense to use ENV to override the base path? Allows cluster-internal trafik only
 	c.basePath = basePath
 	mux.POST(webhook_path, func(endpoint *gin.Context) {
-		msg, err := ToMessage()
+		msg, err := gotify.ToMessage()
 		if err != nil {
 			endpoint.String(http.StatusBadRequest, "Could not parse body to BlockKit")
 		} else {
