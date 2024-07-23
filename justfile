@@ -1,6 +1,6 @@
 [group('local')]
 test:
-  go test
+  go test ./...
 
 [group('local')]
 make:
