@@ -7,7 +7,7 @@ import (
 
 type SectionBlock struct {
 	Text   string
-	Fields []string
+	Fields []*TextObject
 	// TODO Accessory (either image or button - with URL)
 }
 
@@ -15,10 +15,12 @@ func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 	if text := block.Get("text.text"); text.Exists() {
 		sb.Text = text.String()
 	}
-	block.Get("fields.#.text").ForEach(func(_, value gjson.Result) bool {
-		// TODO if type plain_text, we need to escape any Markdown characters
-		// TODO escape during parsing OR store markdown/plain and escape during render?
-		sb.Fields = append(sb.Fields, value.String())
+	block.Get("fields.#").ForEach(func(_, value gjson.Result) bool {
+		to, skip, err := ToTextObject(&value)
+		if err == nil && !skip {
+			// TODO we can't really surface the error here. how?
+			sb.Fields = append(sb.Fields, to)
+		}
 		return true
 	})
 	return false, nil
@@ -26,13 +28,17 @@ func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 
 func (sb *SectionBlock) Render(out *gotify.MarkdownWriter) error {
 	if len(sb.Text) > 1 {
-		err := out.WriteMarkdown(sb.Text)
+		err := out.WriteMarkdownLn(sb.Text)
 		if err != nil {
 			return err
 		}
 	}
-	for _, text := range sb.Fields {
-		err := out.WriteMarkdown(text)
+	for _, text_object := range sb.Fields {
+		err := out.NewLine()
+		if err != nil {
+			return err
+		}
+		err = text_object.Render(out)
 		if err != nil {
 			return err
 		}
