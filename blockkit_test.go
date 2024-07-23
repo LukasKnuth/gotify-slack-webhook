@@ -59,12 +59,12 @@ func TestParse(t *testing.T) {
 	assert.Len(t, body.Blocks, 3)
 
 	buf := new(bytes.Buffer)
-	err = body.Blocks[0].Render(buf)
+	err = body.Blocks[0].Render(New(buf))
 	assert.Nil(t, err)
 	assert.Equal(t, "Danny Torrence left the following review for your property:\n", buf.String())
 
 	buf = new(bytes.Buffer)
-	err = body.Blocks[2].Render(buf)
+	err = body.Blocks[2].Render(New(buf))
 	assert.Nil(t, err)
 	assert.Equal(t, "Rating\n*1.0*\nNot a good time\n", buf.String())
 }
