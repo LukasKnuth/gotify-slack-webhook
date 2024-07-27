@@ -31,7 +31,11 @@ func (be *ButtonElement) Parse(json *gjson.Result) (Skip, error) {
 }
 
 func (be *ButtonElement) Render(out *gotify.MarkdownWriter) error {
+	if be.Text == nil {
+		return nil
+	}
 	if be.Confirm {
+		// TODO we might need to do more if it's a really destructive thing. Maybe render the warning message from the block?
 		if err := out.WriteMarkdown("⚠️"); err != nil {
 			return err
 		}

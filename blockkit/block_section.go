@@ -6,14 +6,15 @@ import (
 )
 
 type SectionBlock struct {
-	Text   string
-	Fields []*TextObject
-	// TODO Accessory (either image or button - with URL)
+	Text      *TextObject
+	Fields    []*TextObject
+	Accessory Block
 }
 
 func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
-	if text := block.Get("text.text"); text.Exists() {
-		sb.Text = text.String()
+	if text := block.Get("text"); text.Exists() {
+		sb.Text = &TextObject{}
+		sb.Text.Parse(&text)
 	}
 	block.Get("fields.#").ForEach(func(_, value gjson.Result) bool {
 		to, skip, err := ToTextObject(&value)
@@ -23,12 +24,35 @@ func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 		}
 		return true
 	})
+	accessory := block.Get("accessory")
+	switch accessory.Get("type").String() {
+	case "button":
+		sectionAccessoryButton(sb, &accessory)
+	case "image":
+		sectionAccessoryImage(sb, &accessory)
+	}
 	return false, nil
 }
 
+func sectionAccessoryImage(sb *SectionBlock, block *gjson.Result) {
+	elem := &ImageElement{}
+	skip, err := elem.Parse(block)
+	if err == nil && !skip {
+		sb.Accessory = elem
+	}
+}
+
+func sectionAccessoryButton(sb *SectionBlock, block *gjson.Result) {
+	elem := &ButtonElement{}
+	skip, err := elem.Parse(block)
+	if err == nil && !skip {
+		sb.Accessory = elem
+	}
+}
+
 func (sb *SectionBlock) Render(out *gotify.MarkdownWriter) error {
-	if len(sb.Text) > 1 {
-		err := out.WriteMarkdownLn(sb.Text)
+	if sb.Text != nil {
+		err := sb.Text.Render(out)
 		if err != nil {
 			return err
 		}
@@ -39,6 +63,12 @@ func (sb *SectionBlock) Render(out *gotify.MarkdownWriter) error {
 			return err
 		}
 		err = text_object.Render(out)
+		if err != nil {
+			return err
+		}
+	}
+	if sb.Accessory != nil {
+		err := sb.Accessory.Render(out)
 		if err != nil {
 			return err
 		}
