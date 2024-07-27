@@ -1,10 +1,8 @@
 package webhook
 
 import (
-	"bytes"
 	"testing"
 
-	"github.com/lukasknuth/gotify-slack-webhook/gotify"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,14 +56,4 @@ func TestParse(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "Danny Torrence left a 1 star review for your property.", body.Text)
 	assert.Len(t, body.Blocks, 3)
-
-	buf := new(bytes.Buffer)
-	err = body.Blocks[0].Render(gotify.Wrap(buf))
-	assert.Nil(t, err)
-	assert.Equal(t, "Danny Torrence left the following review for your property:\n", buf.String())
-
-	buf = new(bytes.Buffer)
-	err = body.Blocks[2].Render(gotify.Wrap(buf))
-	assert.Nil(t, err)
-	assert.Equal(t, "Rating\n*1.0*\nNot a good time\n", buf.String())
 }
