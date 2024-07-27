@@ -11,7 +11,7 @@ type ContextBlock struct {
 }
 
 func (cb *ContextBlock) Parse(block *gjson.Result) (Skip, error) {
-	block.Get("elements.#").ForEach(func(_, value gjson.Result) bool {
+	block.Get("elements").ForEach(func(_, value gjson.Result) bool {
 		switch value.Get("type").String() {
 		case "image":
 			contextAppendImage(cb, &value)

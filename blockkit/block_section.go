@@ -16,7 +16,7 @@ func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 		sb.Text = &TextObject{}
 		sb.Text.Parse(&text)
 	}
-	block.Get("fields.#").ForEach(func(_, value gjson.Result) bool {
+	block.Get("fields").ForEach(func(_, value gjson.Result) bool {
 		to, skip, err := ToTextObject(&value)
 		if err == nil && !skip {
 			// TODO we can't really surface the error here. how?
