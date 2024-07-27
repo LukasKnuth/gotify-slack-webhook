@@ -29,6 +29,8 @@ func (to *TextObject) Render(out *gotify.MarkdownWriter) error {
 	if len(to.Text) == 0 {
 		return nil
 	}
+	// Just prints it's content and thats it.
+	// Containers are responsible for ending markdown blocks (with newlines)
 	switch to.Type {
 	case "mrkdwn":
 		return out.WriteMarkdown(to.Text)

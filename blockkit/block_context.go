@@ -22,7 +22,7 @@ func (cb *ContextBlock) Parse(block *gjson.Result) (Skip, error) {
 		}
 		return true
 	})
-	return false, nil
+	return len(cb.Elements) == 0, nil
 }
 
 func contextAppendImage(cb *ContextBlock, block *gjson.Result) {
@@ -43,11 +43,11 @@ func contextAppendText(cb *ContextBlock, block *gjson.Result) {
 
 func (cb *ContextBlock) Render(out *gotify.MarkdownWriter) error {
 	for _, element := range cb.Elements {
-		err := out.NewLine()
+		err := element.Render(out)
 		if err != nil {
 			return err
 		}
-		err = element.Render(out)
+		err = out.NewLine()
 		if err != nil {
 			return err
 		}
