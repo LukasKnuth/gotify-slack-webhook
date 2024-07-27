@@ -5,3 +5,6 @@ gotify-slack-webhook
 
 # Verify against server mod list
 gotify-server.mod
+
+# Coverage reports
+cover.*
