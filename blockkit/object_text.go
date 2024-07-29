@@ -20,9 +20,14 @@ func ToTextObject(json *gjson.Result) (*TextObject, Skip, error) {
 }
 
 func (to *TextObject) Parse(json *gjson.Result) (Skip, error) {
-	to.Type = json.Get("type").String()
-	to.Text = json.Get("text").String()
-	return false, nil
+	textType := json.Get("type").String()
+	if textType == "plain_text" || textType == "mrkdwn" {
+		to.Type = textType
+		to.Text = json.Get("text").String()
+		return false, nil
+	} else {
+		return true, nil
+	}
 }
 
 func (to *TextObject) Render(out *gotify.MarkdownWriter) error {
