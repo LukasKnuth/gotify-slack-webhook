@@ -17,10 +17,10 @@ func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 		sb.Text.Parse(&text)
 	}
 	block.Get("fields").ForEach(func(_, value gjson.Result) bool {
-		to, skip, err := ToTextObject(&value)
+		textObject, skip, err := ToTextObject(&value)
 		if err == nil && !skip {
 			// TODO we can't really surface the error here. how?
-			sb.Fields = append(sb.Fields, to)
+			sb.Fields = append(sb.Fields, textObject)
 		}
 		return true
 	})
@@ -31,7 +31,7 @@ func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 	case "image":
 		sectionAccessoryImage(sb, &accessory)
 	}
-	return false, nil
+	return sb.Text == nil && len(sb.Fields) == 0 && sb.Accessory == nil, nil
 }
 
 func sectionAccessoryImage(sb *SectionBlock, block *gjson.Result) {
@@ -67,8 +67,18 @@ func (sb *SectionBlock) Render(out *gotify.MarkdownWriter) error {
 			return err
 		}
 	}
+	if len(sb.Fields) > 0 {
+		err := out.NewLine()
+		if err != nil {
+			return err
+		}
+	}
 	if sb.Accessory != nil {
 		err := sb.Accessory.Render(out)
+		if err != nil {
+			return err
+		}
+		err = out.NewLine()
 		if err != nil {
 			return err
 		}
