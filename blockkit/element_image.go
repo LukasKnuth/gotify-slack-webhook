@@ -22,6 +22,8 @@ func (ie *ImageElement) Parse(json *gjson.Result) (Skip, error) {
 }
 
 func (ie *ImageElement) Render(out *gotify.MarkdownWriter) error {
-	out.WriteMarkdownF("![%s](%s)\n", ie.AltText, ie.Url)
+	if len(ie.Url) > 0 {
+		out.WriteMarkdownF("![%s](%s)", ie.AltText, ie.Url)
+	}
 	return nil
 }

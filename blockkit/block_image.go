@@ -28,6 +28,10 @@ func (ib *ImageBlock) Render(out *gotify.MarkdownWriter) error {
 	}
 	if ib.Image != nil {
 		ib.Image.Render(out)
+		err := out.NewLine()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

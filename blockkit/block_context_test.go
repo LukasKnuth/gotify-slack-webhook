@@ -89,6 +89,6 @@ func TestContextBlockRender(t *testing.T) {
 		err := block.Render(gotify.Wrap(buffer))
 		assert.Nil(t, err)
 
-		assert.Equal(t, "testing\n![alting](http://test.png)\n\n", buffer.String())
+		assert.Equal(t, "testing\n![alting](http://test.png)\n", buffer.String())
 	})
 }
