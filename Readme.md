@@ -87,12 +87,12 @@ You can build messages interactively in the [Block Kit Builder](https://app.slac
 
 ### Restrictions
 
-We're sending REST API requests to the local running Gotify instance. For this to work, two settings are crucial:
+We're sending REST API requests to the local running Gotify instance. For this to work, two [settings](https://gotify.net/docs/config) are crucial:
 
 - If you must change the port, set `GOTIFY_SERVER_PORT` ENV variable instead of using the YAML file
 - You may not change the `server.listenaddr` or `GOTIFY_SERVER_LISTENADDR`, the server must listen on `localhost/127.0.0.1`
 
-Neither of these apply to the **default configuration** of the server.
+NOTE: Neither of these apply to the **default configuration** of the server.
 
 ## To-Do
 
