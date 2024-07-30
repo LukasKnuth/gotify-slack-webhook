@@ -64,47 +64,15 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 	})
 }
 
-func sendMessage(msg *plugin.Message, token string) error {
-	port, is_set := os.LookupEnv("GOTIFY_SERVER_PORT")
-	if !is_set {
-		// TODO if the port is set via config, we're out of luck... Document in Readme?
-		// TODO same for listening address. Can we even do anything then?
-		port = "80"
-	}
-	url := fmt.Sprintf("http://localhost:%v/message", port)
-	json, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(json))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("X-Gotify-Key", token)
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	if res.StatusCode != http.StatusOK {
-		return errors.New("Gotify API indicated message sending failed. Is the token correct?")
-	} else {
-		return nil
-	}
-}
-
 func (c *Plugin) GetDisplay(location *url.URL) string {
 	fullUrl := location.JoinPath(c.basePath, webhook_path)
 	return fmt.Sprintf("Webhook URL: `%s`", fullUrl)
 }
 
-// Enable implements plugin.Plugin
 func (c *Plugin) Enable() error {
 	return nil
 }
 
-// Disable implements plugin.Plugin
 func (c *Plugin) Disable() error {
 	return nil
 }
