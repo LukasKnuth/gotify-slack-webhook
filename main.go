@@ -1,17 +1,15 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotify/plugin-api"
 	"github.com/lukasknuth/gotify-slack-webhook/gotify"
+	"github.com/lukasknuth/gotify-slack-webhook/webhook"
 )
 
 // GetGotifyPluginInfo returns gotify plugin info
@@ -47,20 +45,31 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 	// TODO Does it make sense to use ENV to override the base path? Allows cluster-internal trafik only
 	c.basePath = basePath
 	mux.POST(webhook_path, func(endpoint *gin.Context) {
-		msg, err := gotify.ToMessage()
+		body, err := io.ReadAll(endpoint.Request.Body)
 		if err != nil {
-			endpoint.String(http.StatusBadRequest, "Could not parse body to BlockKit")
-		} else {
-			err = sendMessage(&msg, endpoint.Param("app_token"))
-			if err != nil {
-				fmt.Print(err.Error())
-				c.msgHandler.SendMessage(plugin.Message{
-					Title:   "Hook delivery failed!",
-					Message: err.Error(),
-				})
-			}
-			endpoint.String(http.StatusOK, "OK")
+			endpoint.String(http.StatusBadRequest, "Could not read body from request")
+			return
 		}
+		payload := &webhook.WebhookBody{}
+		err = payload.Parse(body)
+		if err != nil {
+			endpoint.String(http.StatusBadRequest, "Could not parse JSON body")
+			return
+		}
+		rendered, err := payload.Render()
+		if err != nil {
+			endpoint.String(http.StatusBadRequest, "Could not render result")
+		}
+		msg := gotify.ToMessage(rendered)
+		err = gotify.SendMessage(&msg, endpoint.Param("app_token"))
+		if err != nil {
+			c.msgHandler.SendMessage(plugin.Message{
+				Title: "Could not deliver Slack Webhook content to Gotify",
+				// TODO perhaps more info _why_ this wasn't possible?
+				Message: err.Error(),
+			})
+		}
+		endpoint.String(http.StatusOK, "OK")
 	})
 }
 
