@@ -164,6 +164,6 @@ func TestSectionBlockRender(t *testing.T) {
 		buffer := new(bytes.Buffer)
 		err := block.Render(gotify.Wrap(buffer))
 		assert.Nil(t, err)
-		assert.Equal(t, "My Text\nleft\nright\n[Button](http://some.where)\n", buffer.String())
+		assert.Equal(t, "My Text\n* left\n* right\n[Button](http://some.where)\n", buffer.String())
 	})
 }

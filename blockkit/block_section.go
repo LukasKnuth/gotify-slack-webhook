@@ -62,6 +62,10 @@ func (sb *SectionBlock) Render(out *gotify.MarkdownWriter) error {
 		if err != nil {
 			return err
 		}
+		err = out.WriteMarkdown("* ")
+		if err != nil {
+			return err
+		}
 		err = text_object.Render(out)
 		if err != nil {
 			return err
