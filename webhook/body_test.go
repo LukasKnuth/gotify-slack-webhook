@@ -142,7 +142,7 @@ const webhookBodyValid = `{
 	]
 }`
 
-func TestWebhookParse(t *testing.T) {
+func TestWebhookBodyParse(t *testing.T) {
 	t.Run("does not fail for empty input", func(t *testing.T) {
 		payload := &WebhookBody{}
 		err := payload.Parse([]byte(""))
@@ -173,5 +173,27 @@ func TestWebhookParse(t *testing.T) {
 		assert.IsType(t, &blockkit.HeaderBlock{}, payload.Blocks[4])
 		assert.IsType(t, &blockkit.VideoBlock{}, payload.Blocks[5])
 		assert.Len(t, payload.Blocks, 6)
+	})
+}
+
+func TestWebhookBodyRender(t *testing.T) {
+	t.Run("does not fail for empty struct", func(t *testing.T) {
+		payload := &WebhookBody{}
+		out, err := payload.Render()
+		assert.Nil(t, err)
+		assert.Empty(t, out)
+	})
+
+	t.Run("renders text and blocks", func(t *testing.T) {
+		payload := &WebhookBody{
+			Text: "The simple text here",
+			Blocks: []blockkit.Block{
+				&blockkit.HeaderBlock{PlainText: "Headline"},
+				&blockkit.DividerBlock{},
+			},
+		}
+		out, err := payload.Render()
+		assert.Nil(t, err)
+		assert.Equal(t, "The simple text here\n## Headline\n\n\n\n---\n\n", out)
 	})
 }

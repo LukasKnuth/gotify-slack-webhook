@@ -64,7 +64,7 @@ func parseBlock(block *gjson.Result) (blockkit.Block, blockkit.Skip, error) {
 	}
 }
 
-func (wb *WebhookBody) Render() (*string, error) {
+func (wb *WebhookBody) Render() (string, error) {
 	buffer := new(bytes.Buffer)
 	out := gotify.Wrap(buffer)
 
@@ -74,10 +74,10 @@ func (wb *WebhookBody) Render() (*string, error) {
 	for _, block := range wb.Blocks {
 		err := block.Render(out)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 	}
 
 	result := buffer.String()
-	return &result, nil
+	return result, nil
 }
