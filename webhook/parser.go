@@ -1,7 +1,10 @@
 package webhook
 
 import (
+	"bytes"
+
 	"github.com/lukasknuth/gotify-slack-webhook/blockkit"
+	"github.com/lukasknuth/gotify-slack-webhook/gotify"
 	"github.com/tidwall/gjson"
 )
 
@@ -10,24 +13,24 @@ type WebhookBody struct {
 	Blocks []blockkit.Block
 }
 
-func Parse(json string) (*WebhookBody, error) {
-	body := &WebhookBody{}
-	result := gjson.Get(json, "text")
-	if result.Exists() {
-		body.Text = result.String()
+func (wb *WebhookBody) Parse(requestBody []byte) error {
+	json := gjson.ParseBytes(requestBody)
+	if text := json.Get("text"); text.Exists() {
+		wb.Text = text.String()
 	}
-	result = gjson.Get(json, "blocks")
-	for _, block := range result.Array() {
+	blocks := json.Get("blocks")
+	for _, block := range blocks.Array() {
 		parsed, skip, err := parseBlock(&block)
 		if err != nil {
-			return nil, err
+			// TODO this solves my exit early issue on blocks, no?
+			return err
 		} else if parsed == nil || skip {
 			continue
 		} else {
-			body.Blocks = append(body.Blocks, parsed)
+			wb.Blocks = append(wb.Blocks, parsed)
 		}
 	}
-	return body, nil
+	return nil
 }
 
 func parseBlock(block *gjson.Result) (blockkit.Block, blockkit.Skip, error) {
@@ -59,4 +62,22 @@ func parseBlock(block *gjson.Result) (blockkit.Block, blockkit.Skip, error) {
 	default:
 		return nil, true, nil
 	}
+}
+
+func (wb *WebhookBody) Render() (*string, error) {
+	buffer := new(bytes.Buffer)
+	out := gotify.Wrap(buffer)
+
+	if len(wb.Text) > 0 {
+		out.WriteMarkdownLn(wb.Text)
+	}
+	for _, block := range wb.Blocks {
+		err := block.Render(out)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	result := buffer.String()
+	return &result, nil
 }

@@ -144,31 +144,34 @@ const webhookBodyValid = `{
 
 func TestWebhookParse(t *testing.T) {
 	t.Run("does not fail for empty input", func(t *testing.T) {
-		body, err := Parse("")
+		payload := &WebhookBody{}
+		err := payload.Parse([]byte(""))
 		assert.Nil(t, err)
-		assert.Empty(t, body.Text)
-		assert.Empty(t, body.Blocks)
+		assert.Empty(t, payload.Text)
+		assert.Empty(t, payload.Blocks)
 	})
 
 	t.Run("skips invalid blocks", func(t *testing.T) {
-		body, err := Parse(webhookBodyInvalid)
+		payload := &WebhookBody{}
+		err := payload.Parse([]byte(webhookBodyInvalid))
 		assert.Nil(t, err)
-		assert.Empty(t, body.Text)
-		assert.IsType(t, &blockkit.SectionBlock{}, body.Blocks[0])
-		assert.IsType(t, &blockkit.DividerBlock{}, body.Blocks[1])
-		assert.Len(t, body.Blocks, 2)
+		assert.Empty(t, payload.Text)
+		assert.IsType(t, &blockkit.SectionBlock{}, payload.Blocks[0])
+		assert.IsType(t, &blockkit.DividerBlock{}, payload.Blocks[1])
+		assert.Len(t, payload.Blocks, 2)
 	})
 
 	t.Run("parses valid input", func(t *testing.T) {
-		body, err := Parse(webhookBodyValid)
+		payload := &WebhookBody{}
+		err := payload.Parse([]byte(webhookBodyValid))
 		assert.Nil(t, err)
-		assert.Equal(t, "Test notification", body.Text)
-		assert.IsType(t, &blockkit.SectionBlock{}, body.Blocks[0])
-		assert.IsType(t, &blockkit.DividerBlock{}, body.Blocks[1])
-		assert.IsType(t, &blockkit.ImageBlock{}, body.Blocks[2])
-		assert.IsType(t, &blockkit.ContextBlock{}, body.Blocks[3])
-		assert.IsType(t, &blockkit.HeaderBlock{}, body.Blocks[4])
-		assert.IsType(t, &blockkit.VideoBlock{}, body.Blocks[5])
-		assert.Len(t, body.Blocks, 6)
+		assert.Equal(t, "Test notification", payload.Text)
+		assert.IsType(t, &blockkit.SectionBlock{}, payload.Blocks[0])
+		assert.IsType(t, &blockkit.DividerBlock{}, payload.Blocks[1])
+		assert.IsType(t, &blockkit.ImageBlock{}, payload.Blocks[2])
+		assert.IsType(t, &blockkit.ContextBlock{}, payload.Blocks[3])
+		assert.IsType(t, &blockkit.HeaderBlock{}, payload.Blocks[4])
+		assert.IsType(t, &blockkit.VideoBlock{}, payload.Blocks[5])
+		assert.Len(t, payload.Blocks, 6)
 	})
 }
