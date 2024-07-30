@@ -3,26 +3,172 @@ package webhook
 import (
 	"testing"
 
+	"github.com/lukasknuth/gotify-slack-webhook/blockkit"
 	"github.com/stretchr/testify/assert"
 )
 
-const exampleBody = `{
-    "text": "Danny Torrence left a 1 star review for your property.",
-    "blocks": [
-    	{
-    		"type": "section",
-    		"text": {
-    			"type": "mrkdwn",
-    			"text": "Danny Torrence left the following review for your property:"
-    		}
-    	}
-    ]
-}
-`
+const webhookBodyInvalid = `{
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hello, Assistant to the Regional Manager Dwight! *Michael Scott* wants to know where you'd like to take the Paper Company investors to dinner tonight.\n\n *Please select a restaurant:*"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "Farmhouse",
+						"emoji": true
+					},
+					"value": "click_me_123"
+				}
+			]
+		}
+	]
+}`
+const webhookBodyValid = `{
+	"text": "Test notification"
+	"blocks": [
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Hello, Assistant to the Regional Manager Dwight! *Michael Scott* wants to know where you'd like to take the Paper Company investors to dinner tonight.\n\n *Please select a restaurant:*"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "Farmhouse",
+						"emoji": true
+					},
+					"value": "click_me_123"
+				}
+			]
+		},
+		{
+			"type": "image",
+			"title": {
+				"type": "plain_text",
+				"text": "I love tacos",
+				"emoji": true
+			},
+			"image_url": "https://assets3.thrillist.com/v1/image/1682388/size/tl-horizontal_main.jpg",
+			"alt_text": "delicious tacos"
+		},
+		{
+			"type": "context",
+			"elements": [
+				{
+					"type": "plain_text",
+					"text": "Author: K A Applegate",
+					"emoji": true
+				}
+			]
+		},
+		{
+			"type": "input",
+			"element": {
+				"type": "datepicker",
+				"initial_date": "1990-04-28",
+				"placeholder": {
+					"type": "plain_text",
+					"text": "Select a date",
+					"emoji": true
+				},
+				"action_id": "datepicker-action"
+			},
+			"label": {
+				"type": "plain_text",
+				"text": "Label",
+				"emoji": true
+			}
+		},
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "This is a header block",
+				"emoji": true
+			}
+		},
+		{
+			"type": "rich_text",
+			"elements": [
+				{
+					"type": "rich_text_section",
+					"elements": [
+						{
+							"type": "text",
+							"text": "Hello there, I am a basic rich text block!"
+						}
+					]
+				}
+			]
+		},
+		{
+		  "type": "video",
+		  "title": {
+		    "type": "plain_text",
+		    "text": "Use the Events API to create a dynamic App Home",
+		    "emoji": true
+		  },
+		  "title_url": "https://www.youtube.com/watch?v=8876OZV_Yy0",
+		  "description": {
+		    "type": "plain_text",
+		    "text": "Slack sure is nifty!",
+		    "emoji": true
+		  },
+		  "video_url": "https://www.youtube.com/embed/8876OZV_Yy0?feature=oembed&autoplay=1",
+		  "alt_text": "Use the Events API to create a dynamic App Home",
+		  "thumbnail_url": "https://i.ytimg.com/vi/8876OZV_Yy0/hqdefault.jpg",
+		}
+	]
+}`
 
-func TestParse(t *testing.T) {
-	body, err := Parse(exampleBody)
-	assert.Nil(t, err)
-	assert.Equal(t, "Danny Torrence left a 1 star review for your property.", body.Text)
-	assert.Len(t, body.Blocks, 1)
+func TestWebhookParse(t *testing.T) {
+	t.Run("does not fail for empty input", func(t *testing.T) {
+		body, err := Parse("")
+		assert.Nil(t, err)
+		assert.Empty(t, body.Text)
+		assert.Empty(t, body.Blocks)
+	})
+
+	t.Run("skips invalid blocks", func(t *testing.T) {
+		body, err := Parse(webhookBodyInvalid)
+		assert.Nil(t, err)
+		assert.Empty(t, body.Text)
+		assert.IsType(t, &blockkit.SectionBlock{}, body.Blocks[0])
+		assert.IsType(t, &blockkit.DividerBlock{}, body.Blocks[1])
+		assert.Len(t, body.Blocks, 2)
+	})
+
+	t.Run("parses valid input", func(t *testing.T) {
+		body, err := Parse(webhookBodyValid)
+		assert.Nil(t, err)
+		assert.Equal(t, "Test notification", body.Text)
+		assert.IsType(t, &blockkit.SectionBlock{}, body.Blocks[0])
+		assert.IsType(t, &blockkit.DividerBlock{}, body.Blocks[1])
+		assert.IsType(t, &blockkit.ImageBlock{}, body.Blocks[2])
+		assert.IsType(t, &blockkit.ContextBlock{}, body.Blocks[3])
+		assert.IsType(t, &blockkit.HeaderBlock{}, body.Blocks[4])
+		assert.IsType(t, &blockkit.VideoBlock{}, body.Blocks[5])
+		assert.Len(t, body.Blocks, 6)
+	})
 }

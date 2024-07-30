@@ -6,7 +6,7 @@ import (
 )
 
 type WebhookBody struct {
-	Text   string // TODO both in the same document might not be valid...
+	Text   string
 	Blocks []blockkit.Block
 }
 
@@ -36,6 +36,26 @@ func parseBlock(block *gjson.Result) (blockkit.Block, blockkit.Skip, error) {
 		section := &blockkit.SectionBlock{}
 		skip, err := section.Parse(block)
 		return section, skip, err
+	case "divider":
+		divider := &blockkit.DividerBlock{}
+		skip, err := divider.Parse(block)
+		return divider, skip, err
+	case "image":
+		image := &blockkit.ImageBlock{}
+		skip, err := image.Parse(block)
+		return image, skip, err
+	case "context":
+		context := &blockkit.ContextBlock{}
+		skip, err := context.Parse(block)
+		return context, skip, err
+	case "header":
+		header := &blockkit.HeaderBlock{}
+		skip, err := header.Parse(block)
+		return header, skip, err
+	case "video":
+		video := &blockkit.VideoBlock{}
+		skip, err := video.Parse(block)
+		return video, skip, err
 	default:
 		return nil, true, nil
 	}
