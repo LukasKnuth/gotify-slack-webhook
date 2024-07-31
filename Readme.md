@@ -94,11 +94,6 @@ We're sending REST API requests to the local running Gotify instance. For this t
 
 NOTE: Neither of these apply to the **default configuration** of the server.
 
-## To-Do
-
-- [] Setup Github action workflow to use official `gotify/build` containers to build multi-arch
-- [] Add these outputs to a release, allowing the plugin to be downloaded
-
 ## References
 
 - [Slack Incoming Webhook documentation](https://api.slack.com/messaging/webhooks)
