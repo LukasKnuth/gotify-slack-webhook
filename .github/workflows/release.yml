@@ -16,7 +16,7 @@ jobs:
   check:
     uses: ./.github/workflows/_check.yml
 
-  release:
+  build:
     needs: check
     runs-on: ubuntu-latest
     strategy:
@@ -38,3 +38,12 @@ jobs:
         with:
           name: ${{ env.OUT_FILE }}
           path: out/${{ env.OUT_FILE }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
+        with:
+          artifacts: "*.so"
+          generateReleaseNotes: true
