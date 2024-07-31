@@ -69,7 +69,10 @@ func (wb *WebhookBody) Render() (string, error) {
 	out := gotify.Wrap(buffer)
 
 	if len(wb.Text) > 0 {
-		out.WriteMarkdownLn(wb.Text)
+		err := out.WriteMarkdownLn(wb.Text)
+		if err != nil {
+			return "", err
+		}
 	}
 	for _, block := range wb.Blocks {
 		err := block.Render(out)

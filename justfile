@@ -7,6 +7,10 @@ test:
 make:
   go build
 
+[group('local')]
+lint:
+  golangci-lint run --fix
+
 server-mod := "gotify-server.mod"
 docker-image := "gotify-build-arm64"
 server-go-version := "1.22.4"

@@ -63,7 +63,7 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 		msg := gotify.ToMessage(rendered)
 		err = gotify.SendMessage(&msg, endpoint.Param("app_token"))
 		if err != nil {
-			c.msgHandler.SendMessage(plugin.Message{
+			_ = c.msgHandler.SendMessage(plugin.Message{
 				Title: "Could not deliver Slack Webhook content to Gotify",
 				// TODO perhaps more info _why_ this wasn't possible?
 				Message: err.Error(),

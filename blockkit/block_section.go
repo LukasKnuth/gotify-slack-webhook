@@ -14,7 +14,10 @@ type SectionBlock struct {
 func (sb *SectionBlock) Parse(block *gjson.Result) (Skip, error) {
 	if text := block.Get("text"); text.Exists() {
 		sb.Text = &TextObject{}
-		sb.Text.Parse(&text)
+		_, err := sb.Text.Parse(&text)
+		if err != nil {
+			return false, err
+		}
 	}
 	block.Get("fields").ForEach(func(_, value gjson.Result) bool {
 		textObject, skip, err := ToTextObject(&value)

@@ -24,11 +24,17 @@ func (ib *ImageBlock) Parse(json *gjson.Result) (Skip, error) {
 
 func (ib *ImageBlock) Render(out *gotify.MarkdownWriter) error {
 	if len(ib.Title) > 0 {
-		out.WriteMarkdownF("(Image) %s\n", ib.Title)
+		err := out.WriteMarkdownF("(Image) %s\n", ib.Title)
+		if err != nil {
+			return err
+		}
 	}
 	if ib.Image != nil {
-		ib.Image.Render(out)
-		err := out.NewLine()
+		err := ib.Image.Render(out)
+		if err != nil {
+			return err
+		}
+		err = out.NewLine()
 		if err != nil {
 			return err
 		}

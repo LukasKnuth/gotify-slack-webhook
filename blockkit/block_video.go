@@ -22,7 +22,8 @@ func (vb *VideoBlock) Parse(block *gjson.Result) (Skip, error) {
 
 func (vb *VideoBlock) Render(out *gotify.MarkdownWriter) error {
 	if len(vb.VideoUrl) > 0 {
-		out.WriteMarkdownF("[Video: %s ![%s](%s)](%s)\n", vb.Title, vb.AltText, vb.ThumbUrl, vb.VideoUrl)
+		return out.WriteMarkdownF("[Video: %s ![%s](%s)](%s)\n", vb.Title, vb.AltText, vb.ThumbUrl, vb.VideoUrl)
+	} else {
+		return nil
 	}
-	return nil
 }
