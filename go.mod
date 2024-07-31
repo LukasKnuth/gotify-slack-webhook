@@ -1,6 +1,6 @@
 module github.com/lukasknuth/gotify-slack-webhook
 
-go 1.19
+go 1.22.4
 
 require (
 	github.com/gin-gonic/gin v1.10.0
