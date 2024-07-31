@@ -1,0 +1,21 @@
+name: Push/PR
+
+on:
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+  push:
+    paths-ignore:
+      - 'README.md'
+    # We only run on branch pushes. This excludes tag pushes implicitly.
+    branches:
+      - '**'
+
+# Testing only needs permissions to read the repository contents.
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/_check.yml
+
