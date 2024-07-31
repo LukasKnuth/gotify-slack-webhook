@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: ["linux"]
-        arch: ["386", "amd64", "arm-7", "arm64", "riscv64"]
+        arch: ["386", "amd64", "arm-7", "arm64"]
     env:
       GO_VERSION: 1.22.4 # TODO perhaps just have a "SERVER_VERSION" file in repo?
       PLUGIN_NAME: gotify-slack-webhook
