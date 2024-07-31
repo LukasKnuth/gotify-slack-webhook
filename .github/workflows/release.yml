@@ -25,16 +25,16 @@ jobs:
         arch: ["386", "amd64", "arm-7", "arm64"]
     env:
       GO_VERSION: 1.22.4 # TODO perhaps just have a "SERVER_VERSION" file in repo?
-      PLUGIN_NAME: gotify-slack-webhook
+      OUT_FILE: gotify-slack-webhook-${{ matrix.arch }}.so
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Build in Container
         run: |
           docker run -v ${{ github.workspace }}:/build -w /build \
           gotify/build:${{ env.GO_VERSION }}-${{ matrix.os }}-${{ matrix.arch }} \
-          go build -a -installsuffix cgo -ldflags "-w -s" -buildmode=plugin -o out/${{ env.PLUGIN_NAME }}-${{ matrix.arch }}.so
+          go build -a -installsuffix cgo -ldflags "-w -s" -buildmode=plugin -o out/${{ env.OUT_FILE }}
       - name: "Archive build artifacts"
         uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
         with:
-          name: build-output
-          path: out/*.so
+          name: ${{ env.OUT_FILE }}
+          path: out/${{ env.OUT_FILE }}
