@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Build in Container
         run: |
-          docker -v ${{ github.workspace }}:/build \
+          docker run -v ${{ github.workspace }}:/build \
           gotify/build:${{ env.GO_VERSION }}-${{ matrix.os }}-${{ matrix.arch }} \
           go build -a -installsuffix cgo -ldflags "-w -s" -buildmode=plugin -o /build/out/${{ env.PLUGIN_NAME }}-${{ matrix.arch }}.so /build
       - name: "Archive build artifacts"
