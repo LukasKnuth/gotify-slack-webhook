@@ -19,7 +19,7 @@ plugin-name := "gotify-slack-webhook"
 [group('gotify')]
 build-image:
   # This is here because the official gotify/builder images are AMD64 only and I'm on a M1 Mac Book
-  docker build . -f Dockerfile.build -t {{docker-image}} --build-arg GO_VERSION={{server-go-version}}
+  docker build . -f build.Dockerfile -t {{docker-image}} --build-arg GO_VERSION={{server-go-version}}
 
 [group('gotify')]
 _build arch:
