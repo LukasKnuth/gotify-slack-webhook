@@ -12,6 +12,9 @@ permissions:
   contents: write
   # For uploading to Github Docker Registry
   packages: write
+  # Both for attesting the docker image
+  id-token: write
+  attestations: write
 
 jobs:
   check:
@@ -80,6 +83,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@4f7cdeb0f05278b464e71357394bf2c61f94138e # v6.6.0
+        id: push
         with:
           context: .
           file: bundle.Dockerfile
@@ -88,3 +92,8 @@ jobs:
           platform: linux/amd64,linux/arm/v7,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - uses: actions/attest-build-provenance@310b0a4a3b0b78ef57ecda988ee04b132db73ef8 # v1.4.1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
