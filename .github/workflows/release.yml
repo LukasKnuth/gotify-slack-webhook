@@ -7,10 +7,11 @@ on:
     tags:
       - 'v*'
 
-# Releases need permissions to read and write the repository contents.
-# GitHub considers creating releases and uploading assets as writing contents.
 permissions:
+  # Write is needed to create a new release on the repo
   contents: write
+  # For uploading to Github Docker Registry
+  packages: write
 
 jobs:
   check:
@@ -72,7 +73,7 @@ jobs:
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         id: meta
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - uses: docker/login-action@v1.10.0
         with:
           registry: ${{ env.REGISTRY }}
