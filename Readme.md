@@ -17,9 +17,15 @@ Many services already integrate with Slack using Incoming Webhooks. If they don'
 
 ## Setup
 
-1. Build the plugin yourself or download a [binary release](https://github.com/LukasKnuth/gotify-slack-webhook/releases)
-2. Make the `.so` file available to Gotify in it's `pluginsdir` (default `/data/plugins`)
-3. Launch Gotify and verify the plugin is loaded in the log:
+### Installation
+
+**Either** build the plugin yourself or download a [binary release](https://github.com/LukasKnuth/gotify-slack-webhook/releases). Make the `.so` file available to Gotify in it's `pluginsdir` (default `/data/plugins`).
+
+**Or**, use the pre-bundled Gotify Server Image built for each release: `ghcr.io/lukasknuth/gotify-slack-webhook-bundled` from [packages](https://github.com/LukasKnuth/gotify-slack-webhook/pkgs/container/gotify-slack-webhook-bundled).
+
+### Configuration
+
+1. Launch Gotify and verify the plugin is loaded in the log:
 
 ```
 Starting Gotify version 2.5.0@2024-06-23-17:12:59

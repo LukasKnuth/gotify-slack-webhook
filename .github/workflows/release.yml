@@ -48,6 +48,7 @@ jobs:
         with:
           artifacts: "gotify-slack-webhook*/*.so"
           generateReleaseNotes: true
+          body: See the [Readme](https://github.com/LukasKnuth/gotify-slack-webhook#setup) for setup instructions.
 
   bundle-container:
     needs: build
