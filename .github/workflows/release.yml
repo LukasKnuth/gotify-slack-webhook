@@ -52,6 +52,7 @@ jobs:
 
   bundle-container:
     needs: build
+    runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: lukasknuth/gotify-slack-webhook-bundled
