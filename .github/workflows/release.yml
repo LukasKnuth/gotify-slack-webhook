@@ -28,7 +28,7 @@ jobs:
         os: ["linux"]
         arch: ["386", "amd64", "arm-7", "arm64"]
     env:
-      GO_VERSION: 1.22.4 # TODO perhaps just have a "SERVER_VERSION" file in repo?
+      GO_VERSION: 1.24.1 # TODO perhaps just have a "SERVER_VERSION" file in repo?
       OUT_FILE: gotify-slack-webhook-${{ matrix.arch }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7

@@ -13,7 +13,7 @@ lint:
 
 server-mod := "gotify-server.mod"
 docker-image := "gotify-build-arm64"
-server-go-version := "1.22.4"
+server-go-version := "1.24.1"
 plugin-name := "gotify-slack-webhook"
 
 [group('gotify')]
