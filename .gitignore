@@ -12,6 +12,8 @@ cover.*
 # Grafana sample
 grafana.json
 sample.json
+alertmgr.json
+*.tar.gz
 
 # Storage for development
 _stor

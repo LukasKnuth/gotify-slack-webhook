@@ -10,8 +10,9 @@ import (
 )
 
 type WebhookBody struct {
-	Text   string
-	Blocks []blockkit.Block
+	Text     string
+	Fallback string
+	Blocks   []blockkit.Block
 }
 
 func (wb *WebhookBody) Parse(requestBody []byte) error {
@@ -24,6 +25,24 @@ func (wb *WebhookBody) Parse(requestBody []byte) error {
 				}
 				wb.Text += strings.ReplaceAll(text.String(), `\n`, "\n")
 			}
+			if fallback := attachment.Get("fallback"); fallback.Exists() {
+				if len(wb.Fallback) > 0 {
+					wb.Fallback += "\n\n"
+				}
+				wb.Fallback += fallback.String()
+			}
+			blocks := attachment.Get("blocks")
+			for _, block := range blocks.Array() {
+				parsed, skip, err := parseBlock(&block)
+				if err != nil {
+					// TODO this solves my exit early issue on blocks, no?
+					return err
+				} else if parsed == nil || skip {
+					continue
+				} else {
+					wb.Blocks = append(wb.Blocks, parsed)
+				}
+			}
 		}
 	}
 	if text := json.Get("text"); text.Exists() {
@@ -31,6 +50,12 @@ func (wb *WebhookBody) Parse(requestBody []byte) error {
 			wb.Text += "\n\n"
 		}
 		wb.Text += text.String()
+	}
+	if fallback := json.Get("fallback"); fallback.Exists() {
+		if len(wb.Fallback) > 0 {
+			wb.Fallback += "\n\n"
+		}
+		wb.Fallback += fallback.String()
 	}
 	blocks := json.Get("blocks")
 	for _, block := range blocks.Array() {
@@ -81,7 +106,9 @@ func parseBlock(block *gjson.Result) (blockkit.Block, blockkit.Skip, error) {
 func (wb *WebhookBody) Render() (string, error) {
 	buffer := new(bytes.Buffer)
 	out := gotify.Wrap(buffer)
-
+	if len(wb.Text) == 0 && len(wb.Fallback) > 0 {
+		wb.Text = wb.Fallback
+	}
 	if len(wb.Text) > 0 {
 		err := out.WriteMarkdownLn(wb.Text)
 		if err != nil {

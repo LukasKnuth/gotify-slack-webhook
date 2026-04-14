@@ -194,6 +194,34 @@ func TestWebhookBodyParse(t *testing.T) {
 		assert.Equal(t, "**Firing**\n\nValue: B=22, C=1\n\nLabels:\n - alertname = TestAlert", payload.Text)
 		assert.Empty(t, payload.Blocks)
 	})
+
+	t.Run("parses alertmgr attachments", func(t *testing.T) {
+		input := `{
+			"channel": "#gotify",
+			"username": "Alertmanager",
+			"attachments": [
+				{
+					"title": "[FIRING:1] monitoring (PrometheusBadConfig prometheus http-web 10.244.4.101:9090 prometheus-kube-prometheus-prometheus prometheus-prometheus-kube-prometheus-prometheus-0 monitoring/prometheus-kube-prometheus-prometheus prometheus-kube-prometheus-prometheus critical)",
+					"title_link": "http://prometheus-kube-prometheus-alertmanager.monitoring:9093/#/alerts?receiver=slack-gotify",
+					"text": "",
+					"fallback": "[FIRING:1] monitoring (PrometheusBadConfig prometheus http-web 10.244.4.101:9090 prometheus-kube-prometheus-prometheus prometheus-prometheus-kube-prometheus-prometheus-0 monitoring/prometheus-kube-prometheus-prometheus prometheus-kube-prometheus-prometheus critical) | http://prometheus-kube-prometheus-alertmanager.monitoring:9093/#/alerts?receiver=slack-gotify",
+					"callback_id": "",
+					"footer": "",
+					"color": "danger",
+					"mrkdwn_in": [
+						"fallback",
+						"pretext",
+						"text"
+					]
+				}
+			]
+		}`
+
+		payload := &WebhookBody{}
+		err := payload.Parse([]byte(input))
+		assert.Nil(t, err)
+		assert.Equal(t, "[FIRING:1] monitoring (PrometheusBadConfig prometheus http-web 10.244.4.101:9090 prometheus-kube-prometheus-prometheus prometheus-prometheus-kube-prometheus-prometheus-0 monitoring/prometheus-kube-prometheus-prometheus prometheus-kube-prometheus-prometheus critical) | http://prometheus-kube-prometheus-alertmanager.monitoring:9093/#/alerts?receiver=slack-gotify", payload.Fallback)
+	})
 }
 
 func TestWebhookBodyRender(t *testing.T) {
