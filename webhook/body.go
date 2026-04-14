@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/lukasknuth/gotify-slack-webhook/blockkit"
 	"github.com/lukasknuth/gotify-slack-webhook/gotify"
@@ -15,8 +16,21 @@ type WebhookBody struct {
 
 func (wb *WebhookBody) Parse(requestBody []byte) error {
 	json := gjson.ParseBytes(requestBody)
+	if attachments := json.Get("attachments"); attachments.Exists() {
+		for _, attachment := range attachments.Array() {
+			if text := attachment.Get("text"); text.Exists() {
+				if len(wb.Text) > 0 {
+					wb.Text += "\n\n"
+				}
+				wb.Text += strings.ReplaceAll(text.String(), `\n`, "\n")
+			}
+		}
+	}
 	if text := json.Get("text"); text.Exists() {
-		wb.Text = text.String()
+		if len(wb.Text) > 0 {
+			wb.Text += "\n\n"
+		}
+		wb.Text += text.String()
 	}
 	blocks := json.Get("blocks")
 	for _, block := range blocks.Array() {

@@ -11,6 +11,7 @@ cover.*
 
 # Grafana sample
 grafana.json
+sample.json
 
 # Storage for development
 _stor

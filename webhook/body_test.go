@@ -174,6 +174,26 @@ func TestWebhookBodyParse(t *testing.T) {
 		assert.IsType(t, &blockkit.VideoBlock{}, payload.Blocks[5])
 		assert.Len(t, payload.Blocks, 6)
 	})
+
+	t.Run("parses grafana attachments", func(t *testing.T) {
+		input := `{
+			"username": "Grafana",
+			"attachments": [
+				{
+					"text": "**Firing**\n\nValue: B=22, C=1"
+				},
+				{
+					"text": "Labels:\n - alertname = TestAlert"
+				}
+			]
+		}`
+
+		payload := &WebhookBody{}
+		err := payload.Parse([]byte(input))
+		assert.Nil(t, err)
+		assert.Equal(t, "**Firing**\n\nValue: B=22, C=1\n\nLabels:\n - alertname = TestAlert", payload.Text)
+		assert.Empty(t, payload.Blocks)
+	})
 }
 
 func TestWebhookBodyRender(t *testing.T) {
