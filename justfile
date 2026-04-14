@@ -13,7 +13,7 @@ lint:
 
 [group('local')]
 run release:
-  docker run --rm -v "$PWD/_build:/app/data/plugins" -p 8080:80 gotify/server:{{release}}
+  docker run --rm -v "$PWD/_stor:/app/data" -v "$PWD/_build/:/app/data/plugins" -p 8080:80 gotify/server:{{release}}
 
 [group('local')]
 e2e release: (sync-versions "v" + release) (build "arm64") (run release)

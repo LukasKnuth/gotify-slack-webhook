@@ -8,3 +8,9 @@ gotify-server.mod
 
 # Coverage reports
 cover.*
+
+# Grafana sample
+grafana.json
+
+# Storage for development
+_stor
