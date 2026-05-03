@@ -1,6 +1,8 @@
 package legacy
 
 import (
+	"strings"
+
 	"github.com/lukasknuth/gotify-slack-webhook/gotify"
 	"github.com/tidwall/gjson"
 )
@@ -52,29 +54,33 @@ func (la *Attachment) Parse(json *gjson.Result) bool {
 func (la *Attachment) Render(out *gotify.MarkdownWriter) error {
 	var err error
 	if la.Pretext != "" {
-		err := out.WriteMarkdownF("%s\n\n", la.Pretext)
+		err := out.WriteMarkdownF("%s\n\n", stripNewline(la.Pretext))
 		if err != nil {
 			return err
 		}
 	}
 	if la.AuthorName != "" {
 		if la.AuthorLink != "" {
-			err = out.WriteMarkdownF("> [%s](%s)\n>\n", la.AuthorName, la.AuthorLink)
+			err = out.WriteMarkdownF("> [%s](%s)\n>\n", stripNewline(la.AuthorName), stripNewline(la.AuthorLink))
 		} else {
-			err = out.WriteMarkdownF("> %s\n>\n", la.AuthorName)
+			err = out.WriteMarkdownF("> %s\n>\n", stripNewline(la.AuthorName))
 		}
 		if err != nil {
 			return err
 		}
 	}
 	if la.Title != "" {
-		err = out.WriteMarkdownF("> ### %s\n>\n", la.Title)
+		err = out.WriteMarkdownF("> ### %s\n>\n", stripNewline(la.Title))
 		if err != nil {
 			return err
 		}
 	}
 	if la.Text != "" {
-		err = out.WriteMarkdownF("> %s\n>\n", la.Text)
+		err = wrapInBlockquote(out, la.Text)
+		if err != nil {
+			return err
+		}
+		err = out.WriteMarkdown(">\n")
 		if err != nil {
 			return err
 		}
@@ -90,14 +96,25 @@ func (la *Attachment) Render(out *gotify.MarkdownWriter) error {
 				return err
 			}
 		}
+		err = out.WriteMarkdown(">\n")
+		if err != nil {
+			return err
+		}
 	}
-	// NOTE: The main attachment above does not render an empty line inside the quote.
-	// This is so that we don't generate a trailing empty-line in the quote.
-	// Now, we ensure that we add an empty-line **outside** the quote to finish off.
 	if la.Footer != "" {
-		err = out.WriteMarkdownF("\n> %s\n\n", la.Footer)
+		err = out.WriteMarkdownF("> %s\n\n", stripNewline(la.Footer))
 	} else if la.hasContent() {
 		err = out.NewLine()
 	}
 	return err
+}
+
+func stripNewline(text string) string {
+	return strings.TrimSpace(strings.ReplaceAll(text, "\n", " "))
+}
+
+func wrapInBlockquote(out *gotify.MarkdownWriter, text string) error {
+	text = strings.TrimSpace(text)
+	text = strings.ReplaceAll(text, "\n", "\n> ")
+	return out.WriteMarkdownF("> %s\n", text)
 }

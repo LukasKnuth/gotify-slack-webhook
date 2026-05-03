@@ -57,6 +57,28 @@ func TestAttachmentRender(t *testing.T) {
 		assert.Empty(t, buffer.Bytes())
 	})
 
+	t.Run("wraps multiline text in blockquote", func(t *testing.T) {
+		attachment := &Attachment{Text: "This\nis\na\ntest!"}
+		buffer := new(bytes.Buffer)
+		err := attachment.Render(gotify.Wrap(buffer))
+		assert.Nil(t, err)
+		assert.Equal(t, "> This\n> is\n> a\n> test!\n>\n\n", buffer.String())
+	})
+
+	t.Run("strips newlines from most data", func(t *testing.T) {
+		attachment := &Attachment{
+			Pretext:    "Pre\ntext",
+			AuthorName: "Lukas\n",
+			Title:      "\nTest\ning",
+			Text:       "Text\nhere",
+			Footer:     "\nBottom\n\n",
+		}
+		buffer := new(bytes.Buffer)
+		err := attachment.Render(gotify.Wrap(buffer))
+		assert.Nil(t, err)
+		assert.Equal(t, "Pre text\n\n> Lukas\n>\n> ### Test ing\n>\n> Text\n> here\n>\n> Bottom\n\n", buffer.String())
+	})
+
 	t.Run("renders full output", func(t *testing.T) {
 		attachment := &Attachment{
 			Pretext:    "Pretext",
@@ -72,6 +94,6 @@ func TestAttachmentRender(t *testing.T) {
 		buffer := new(bytes.Buffer)
 		err := attachment.Render(gotify.Wrap(buffer))
 		assert.Nil(t, err)
-		assert.Equal(t, "Pretext\n\n> [Lukas](http://test)\n>\n> ### Testing\n>\n> Text here\n>\n> - **Title**: Value\n\n> Bottom\n\n", buffer.String())
+		assert.Equal(t, "Pretext\n\n> [Lukas](http://test)\n>\n> ### Testing\n>\n> Text here\n>\n> - **Title**: Value\n>\n> Bottom\n\n", buffer.String())
 	})
 }
