@@ -69,7 +69,7 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 				Message: err.Error(),
 			})
 		}
-		endpoint.String(http.StatusOK, "OK")
+		endpoint.String(http.StatusOK, "ok")
 	})
 }
 
