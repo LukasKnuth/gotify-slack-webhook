@@ -32,7 +32,6 @@ func TestAttachmentParse(t *testing.T) {
 			"author_link":"http://test",
 			"title":"Title",
 			"text":"Text here",
-			"fallback":"Fallback text",
 			"footer":"My foot",
 			"fields":[{"title":"f_title","value":"f_val","short":true}]
 		}`)
@@ -43,7 +42,6 @@ func TestAttachmentParse(t *testing.T) {
 		assert.Equal(t, "http://test", attachment.AuthorLink)
 		assert.Equal(t, "Title", attachment.Title)
 		assert.Equal(t, "Text here", attachment.Text)
-		assert.Equal(t, "Fallback text", attachment.Fallback)
 		assert.Equal(t, "My foot", attachment.Footer)
 		assert.Equal(t, "f_title", attachment.Fields[0].Title)
 		assert.Equal(t, "f_val", attachment.Fields[0].Value)
@@ -66,7 +64,6 @@ func TestAttachmentRender(t *testing.T) {
 			AuthorLink: "http://test",
 			Title:      "Testing",
 			Text:       "Text here",
-			Fallback:   "Should not see this",
 			Footer:     "Bottom",
 			Fields: []*AttachmentField{
 				{Title: "Title", Value: "Value"},
@@ -76,15 +73,5 @@ func TestAttachmentRender(t *testing.T) {
 		err := attachment.Render(gotify.Wrap(buffer))
 		assert.Nil(t, err)
 		assert.Equal(t, "Pretext\n\n> [Lukas](http://test)\n>\n> ### Testing\n>\n> Text here\n>\n> - **Title**: Value\n\n> Bottom\n\n", buffer.String())
-	})
-
-	t.Run("renders minimal fallback", func(t *testing.T) {
-		attachment := &Attachment{
-			Fallback: "This is all I have",
-		}
-		buffer := new(bytes.Buffer)
-		err := attachment.Render(gotify.Wrap(buffer))
-		assert.Nil(t, err)
-		assert.Equal(t, "> This is all I have\n\n", buffer.String())
 	})
 }

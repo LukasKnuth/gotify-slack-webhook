@@ -11,13 +11,12 @@ type Attachment struct {
 	AuthorLink string
 	Title      string
 	Text       string
-	Fallback   string
 	Footer     string
 	Fields     []*AttachmentField
 }
 
 func (la *Attachment) hasContent() bool {
-	return la.Fallback != "" || la.Text != "" || len(la.Fields) > 0
+	return la.Text != "" || len(la.Fields) > 0
 }
 
 func (la *Attachment) Parse(json *gjson.Result) bool {
@@ -35,9 +34,6 @@ func (la *Attachment) Parse(json *gjson.Result) bool {
 	}
 	if text := json.Get("text"); text.Exists() {
 		la.Text = text.String()
-	}
-	if fallback := json.Get("fallback"); fallback.Exists() {
-		la.Fallback = fallback.String()
 	}
 	if footer := json.Get("footer"); footer.Exists() {
 		la.Footer = footer.String()
@@ -93,11 +89,6 @@ func (la *Attachment) Render(out *gotify.MarkdownWriter) error {
 			if err != nil {
 				return err
 			}
-		}
-	} else if la.Fallback != "" {
-		err = out.WriteMarkdownF("> %s\n", la.Fallback)
-		if err != nil {
-			return err
 		}
 	}
 	// NOTE: The main attachment above does not render an empty line inside the quote.
