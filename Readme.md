@@ -100,6 +100,18 @@ We're sending REST API requests to the local running Gotify instance. For this t
 
 NOTE: Neither of these apply to the **default configuration** of the server.
 
+## Update
+
+Whenever the [Gotify Server](https://github.com/gotify/server/releases) receives a new update, the plugins dependencies must be synchronized with the server.
+
+1. Fork the repo and check it out locally
+2. Run `just sync-versions <new-server-version>` to sync dependencies
+3. Run `just build <arch>` on your local machine to verify everything works
+4. Open PR with the changed `go.mod`, `go.sum` and `SERVER_VERSION.txt` files
+
+While this is a simple process, I haven't found a good way to automate it fully using Github CI.
+If you have ideas how to automate the process, I'd love to review your PR.
+
 ## References
 
 - [Slack Incoming Webhook documentation](https://api.slack.com/messaging/webhooks)
