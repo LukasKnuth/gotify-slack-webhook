@@ -5,12 +5,14 @@ import (
 
 	"github.com/lukasknuth/gotify-slack-webhook/blockkit"
 	"github.com/lukasknuth/gotify-slack-webhook/gotify"
+	"github.com/lukasknuth/gotify-slack-webhook/legacy"
 	"github.com/tidwall/gjson"
 )
 
 type WebhookBody struct {
-	Text   string
-	Blocks []blockkit.Block
+	Text        string
+	Blocks      []blockkit.Block
+	Attachments []legacy.Attachment
 }
 
 func (wb *WebhookBody) Parse(requestBody []byte) error {
@@ -28,6 +30,14 @@ func (wb *WebhookBody) Parse(requestBody []byte) error {
 			continue
 		} else {
 			wb.Blocks = append(wb.Blocks, parsed)
+		}
+	}
+	attachments := json.Get("attachments")
+	for _, block := range attachments.Array() {
+		attachment := legacy.Attachment{}
+		skip := attachment.Parse(&block)
+		if !skip {
+			wb.Attachments = append(wb.Attachments, attachment)
 		}
 	}
 	return nil
@@ -76,6 +86,12 @@ func (wb *WebhookBody) Render() (string, error) {
 	}
 	for _, block := range wb.Blocks {
 		err := block.Render(out)
+		if err != nil {
+			return "", err
+		}
+	}
+	for _, attachment := range wb.Attachments {
+		err := attachment.Render(out)
 		if err != nil {
 			return "", err
 		}

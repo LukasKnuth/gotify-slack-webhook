@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/lukasknuth/gotify-slack-webhook/blockkit"
+	"github.com/lukasknuth/gotify-slack-webhook/legacy"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -141,6 +142,21 @@ const webhookBodyValid = `{
 		}
 	]
 }`
+const webhookBodyGrafana = `{
+   "attachments": [
+      {
+         "color": "#D63232",
+         "fallback": "[FIRING:1] TestAlert Test Folder Grafana ",
+         "footer": "Grafana v12.2.1",
+         "footer_icon": "https://grafana.com/static/assets/img/fav32.png",
+         "text": "**Firing**\n\nValue: B=22, C=1\nLabels:\n - alertname = TestAlert\n - grafana_folder = Test Folder\n - instance = Grafana\nAnnotations:\n - description = aaaa\n - summary = aaaa\nSource: ?orgId=1\nSilence: https://mon.local/alerting/silence/new?alertmanager=grafana&matcher=alertname%3DTestAlert&matcher=grafana_folder%3DTest+Folder&matcher=instance%3DGrafana&orgId=1\nDashboard: https://mon.local/d/dashboard_uid?from=1776157732785&orgId=1&to=1776161332796\nPanel: https://mon.local/d/dashboard_uid?from=1776157732785&orgId=1&to=1776161332796&viewPanel=1\n",
+         "title": "[FIRING:1] TestAlert Test Folder Grafana ",
+         "title_link": "?orgId=1",
+         "ts": 1776161332
+      }
+   ],
+   "username": "Grafana"
+}`
 
 func TestWebhookBodyParse(t *testing.T) {
 	t.Run("does not fail for empty input", func(t *testing.T) {
@@ -174,6 +190,16 @@ func TestWebhookBodyParse(t *testing.T) {
 		assert.IsType(t, &blockkit.VideoBlock{}, payload.Blocks[5])
 		assert.Len(t, payload.Blocks, 6)
 	})
+
+	t.Run("parses legacy attachments", func(t *testing.T) {
+		payload := &WebhookBody{}
+		err := payload.Parse([]byte(webhookBodyGrafana))
+		assert.Nil(t, err)
+		assert.Empty(t, payload.Text)
+		assert.Empty(t, payload.Blocks)
+		assert.IsType(t, legacy.Attachment{}, payload.Attachments[0])
+		assert.Len(t, payload.Attachments, 1)
+	})
 }
 
 func TestWebhookBodyRender(t *testing.T) {
@@ -195,5 +221,22 @@ func TestWebhookBodyRender(t *testing.T) {
 		out, err := payload.Render()
 		assert.Nil(t, err)
 		assert.Equal(t, "The simple text here\n## Headline\n\n\n\n---\n\n", out)
+	})
+
+	t.Run("renders legacy attachment", func(t *testing.T) {
+		payload := &WebhookBody{
+			Text: "Normal Text",
+			Blocks: []blockkit.Block{
+				&blockkit.HeaderBlock{PlainText: "A block!"},
+			},
+			Attachments: []legacy.Attachment{{
+				Footer: "Grafana v12",
+				Text:   "**Firing**\n\nsomething is broken",
+				Title:  "[FIRING:1] TestAlert",
+			}},
+		}
+		out, err := payload.Render()
+		assert.Nil(t, err)
+		assert.Equal(t, "Normal Text\n## A block!\n\n> ### [FIRING:1] TestAlert\n>\n> **Firing**\n> \n> something is broken\n>\n> Grafana v12\n\n", out)
 	})
 }
