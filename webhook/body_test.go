@@ -253,3 +253,33 @@ func TestWebhookBodyRender(t *testing.T) {
 		assert.Equal(t, "First attachment here\n\n---\n\nA second attachment here\n\n", out)
 	})
 }
+
+func TestWebhookBodyTitle(t *testing.T) {
+	t.Run("uses zero-value if no candidates are found", func(t *testing.T) {
+		payload := &WebhookBody{}
+		assert.Equal(t, "", payload.Title())
+	})
+
+	t.Run("picks first header block for title", func(t *testing.T) {
+		payload := &WebhookBody{
+			Blocks: []blockkit.Block{
+				&blockkit.HeaderBlock{PlainText: "First"},
+				&blockkit.HeaderBlock{PlainText: "Second"},
+			},
+			Attachments: []legacy.Attachment{{
+				Title: "Attachment",
+			}},
+		}
+		assert.Equal(t, "First", payload.Title())
+	})
+
+	t.Run("picks first header block for title", func(t *testing.T) {
+		payload := &WebhookBody{
+			Blocks: []blockkit.Block{},
+			Attachments: []legacy.Attachment{{
+				Title: "Attachment",
+			}},
+		}
+		assert.Equal(t, "Attachment", payload.Title())
+	})
+}

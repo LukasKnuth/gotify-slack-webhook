@@ -15,6 +15,23 @@ type WebhookBody struct {
 	Attachments []legacy.Attachment
 }
 
+func (wb *WebhookBody) Title() string {
+	// Try "Header" blocks first...
+	for _, block := range wb.Blocks {
+		if header, ok := block.(*blockkit.HeaderBlock); ok {
+			return header.PlainText
+		}
+	}
+	// ...then try legacy attachemnts
+	for _, attachment := range wb.Attachments {
+		if attachment.Title != "" {
+			return attachment.Title
+		}
+	}
+	// give up (zero value)
+	return ""
+}
+
 func (wb *WebhookBody) Parse(requestBody []byte) error {
 	json := gjson.ParseBytes(requestBody)
 	if text := json.Get("text"); text.Exists() {
