@@ -90,10 +90,13 @@ func (wb *WebhookBody) Render() (string, error) {
 			return "", err
 		}
 	}
-	for _, attachment := range wb.Attachments {
+	for i, attachment := range wb.Attachments {
 		err := attachment.Render(out)
 		if err != nil {
 			return "", err
+		}
+		if i < len(wb.Attachments)-1 {
+			out.WriteMarkdown("---\n\n")
 		}
 	}
 

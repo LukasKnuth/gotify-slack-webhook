@@ -237,6 +237,19 @@ func TestWebhookBodyRender(t *testing.T) {
 		}
 		out, err := payload.Render()
 		assert.Nil(t, err)
-		assert.Equal(t, "Normal Text\n## A block!\n\n> ### [FIRING:1] TestAlert\n>\n> **Firing**\n> \n> something is broken\n>\n> Grafana v12\n\n", out)
+		assert.Equal(t, "Normal Text\n## A block!\n\n### [FIRING:1] TestAlert\n\n**Firing**\n\nsomething is broken\n\nGrafana v12\n\n", out)
+	})
+
+	t.Run("renders multiple legacy attachment", func(t *testing.T) {
+		payload := &WebhookBody{
+			Attachments: []legacy.Attachment{{
+				Text: "First attachment here",
+			}, {
+				Text: "A second attachment here",
+			}},
+		}
+		out, err := payload.Render()
+		assert.Nil(t, err)
+		assert.Equal(t, "First attachment here\n\n---\n\nA second attachment here\n\n", out)
 	})
 }

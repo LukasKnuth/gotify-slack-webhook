@@ -1,8 +1,6 @@
 package legacy
 
 import (
-	"strings"
-
 	"github.com/lukasknuth/gotify-slack-webhook/gotify"
 	"github.com/tidwall/gjson"
 )
@@ -54,67 +52,47 @@ func (la *Attachment) Parse(json *gjson.Result) bool {
 func (la *Attachment) Render(out *gotify.MarkdownWriter) error {
 	var err error
 	if la.Pretext != "" {
-		err := out.WriteMarkdownF("%s\n\n", stripNewline(la.Pretext))
+		err := out.WriteMarkdownF("%s\n\n", la.Pretext)
 		if err != nil {
 			return err
 		}
 	}
 	if la.AuthorName != "" {
 		if la.AuthorLink != "" {
-			err = out.WriteMarkdownF("> [%s](%s)\n>\n", stripNewline(la.AuthorName), stripNewline(la.AuthorLink))
+			err = out.WriteMarkdownF("[%s](%s)\n\n", la.AuthorName, la.AuthorLink)
 		} else {
-			err = out.WriteMarkdownF("> %s\n>\n", stripNewline(la.AuthorName))
+			err = out.WriteMarkdownF("%s\n\n", la.AuthorName)
 		}
 		if err != nil {
 			return err
 		}
 	}
 	if la.Title != "" {
-		err = out.WriteMarkdownF("> ### %s\n>\n", stripNewline(la.Title))
+		err = out.WriteMarkdownF("### %s\n\n", la.Title)
 		if err != nil {
 			return err
 		}
 	}
 	if la.Text != "" {
-		err = wrapInBlockquote(out, la.Text)
-		if err != nil {
-			return err
-		}
-		err = out.WriteMarkdown(">\n")
+		err = out.WriteMarkdownF("%s\n\n", la.Text)
 		if err != nil {
 			return err
 		}
 	}
 	if len(la.Fields) > 0 {
 		for _, field := range la.Fields {
-			err = out.WriteMarkdownF("> ")
-			if err != nil {
-				return err
-			}
 			err = field.Render(out)
 			if err != nil {
 				return err
 			}
 		}
-		err = out.WriteMarkdown(">\n")
+		err = out.NewLine()
 		if err != nil {
 			return err
 		}
 	}
 	if la.Footer != "" {
-		err = out.WriteMarkdownF("> %s\n\n", stripNewline(la.Footer))
-	} else if la.hasContent() {
-		err = out.NewLine()
+		err = out.WriteMarkdownF("%s\n\n", la.Footer)
 	}
 	return err
-}
-
-func stripNewline(text string) string {
-	return strings.TrimSpace(strings.ReplaceAll(text, "\n", " "))
-}
-
-func wrapInBlockquote(out *gotify.MarkdownWriter, text string) error {
-	text = strings.TrimSpace(text)
-	text = strings.ReplaceAll(text, "\n", "\n> ")
-	return out.WriteMarkdownF("> %s\n", text)
 }
