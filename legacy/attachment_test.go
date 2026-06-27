@@ -72,7 +72,7 @@ func TestAttachmentRender(t *testing.T) {
 		buffer := new(bytes.Buffer)
 		err := attachment.Render(gotify.Wrap(buffer))
 		assert.Nil(t, err)
-		assert.Equal(t, "Pretext\n\n[Lukas](http://test)\n\n### Testing\n\nText here\n\n- **Title**: Value\n\nBottom\n\n", buffer.String())
+		assert.Equal(t, "Pretext\n\n[Lukas](http://test)\n\n**Testing**\n\nText here\n\n- **Title**: Value\n\nBottom\n\n", buffer.String())
 	})
 
 	t.Run("renders author name only", func(t *testing.T) {
@@ -84,6 +84,6 @@ func TestAttachmentRender(t *testing.T) {
 		buffer := new(bytes.Buffer)
 		err := attachment.Render(gotify.Wrap(buffer))
 		assert.Nil(t, err)
-		assert.Equal(t, "Pretext\n\nLukas\n\n### Testing\n\n", buffer.String())
+		assert.Equal(t, "Pretext\n\nLukas\n\n**Testing**\n\n", buffer.String())
 	})
 }

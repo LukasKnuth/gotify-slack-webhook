@@ -68,7 +68,7 @@ func (la *Attachment) Render(out *gotify.MarkdownWriter) error {
 		}
 	}
 	if la.Title != "" {
-		err = out.WriteMarkdownF("### %s\n\n", la.Title)
+		err = out.WriteMarkdownF("**%s**\n\n", la.Title)
 		if err != nil {
 			return err
 		}

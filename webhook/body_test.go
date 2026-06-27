@@ -237,7 +237,7 @@ func TestWebhookBodyRender(t *testing.T) {
 		}
 		out, err := payload.Render()
 		assert.Nil(t, err)
-		assert.Equal(t, "Normal Text\n## A block!\n\n### [FIRING:1] TestAlert\n\n**Firing**\n\nsomething is broken\n\nGrafana v12\n\n", out)
+		assert.Equal(t, "Normal Text\n## A block!\n\n**[FIRING:1] TestAlert**\n\n**Firing**\n\nsomething is broken\n\nGrafana v12\n\n", out)
 	})
 
 	t.Run("renders multiple legacy attachment", func(t *testing.T) {
