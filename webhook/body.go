@@ -113,7 +113,10 @@ func (wb *WebhookBody) Render() (string, error) {
 			return "", err
 		}
 		if i < len(wb.Attachments)-1 {
-			out.WriteMarkdown("---\n\n")
+			err := out.WriteMarkdown("---\n\n")
+			if err != nil {
+				return "", err
+			}
 		}
 	}
 
