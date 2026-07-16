@@ -6,4 +6,4 @@ ENV GOTIFY_PLUGINSDIR=/opt/plugins
 
 # NOTE: Need to re-declare this to make available _inside_ image build
 ARG TARGETARCH
-COPY out/gotify-slack-webhook-linux-${TARGETARCH}.so $GOTIFY_PLUGINSDIR
+COPY out/gotify-slack-webhook-linux-${TARGETARCH}.so $GOTIFY_PLUGINSDIR/
