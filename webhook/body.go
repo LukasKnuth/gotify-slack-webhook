@@ -5,12 +5,31 @@ import (
 
 	"github.com/lukasknuth/gotify-slack-webhook/blockkit"
 	"github.com/lukasknuth/gotify-slack-webhook/gotify"
+	"github.com/lukasknuth/gotify-slack-webhook/legacy"
 	"github.com/tidwall/gjson"
 )
 
 type WebhookBody struct {
-	Text   string
-	Blocks []blockkit.Block
+	Text        string
+	Blocks      []blockkit.Block
+	Attachments []legacy.Attachment
+}
+
+func (wb *WebhookBody) Title() string {
+	// Try "Header" blocks first...
+	for _, block := range wb.Blocks {
+		if header, ok := block.(*blockkit.HeaderBlock); ok {
+			return header.PlainText
+		}
+	}
+	// ...then try legacy attachemnts
+	for _, attachment := range wb.Attachments {
+		if attachment.Title != "" {
+			return attachment.Title
+		}
+	}
+	// give up (zero value)
+	return ""
 }
 
 func (wb *WebhookBody) Parse(requestBody []byte) error {
@@ -28,6 +47,14 @@ func (wb *WebhookBody) Parse(requestBody []byte) error {
 			continue
 		} else {
 			wb.Blocks = append(wb.Blocks, parsed)
+		}
+	}
+	attachments := json.Get("attachments")
+	for _, block := range attachments.Array() {
+		attachment := legacy.Attachment{}
+		skip := attachment.Parse(&block)
+		if !skip {
+			wb.Attachments = append(wb.Attachments, attachment)
 		}
 	}
 	return nil
@@ -78,6 +105,18 @@ func (wb *WebhookBody) Render() (string, error) {
 		err := block.Render(out)
 		if err != nil {
 			return "", err
+		}
+	}
+	for i, attachment := range wb.Attachments {
+		err := attachment.Render(out)
+		if err != nil {
+			return "", err
+		}
+		if i < len(wb.Attachments)-1 {
+			err := out.WriteMarkdown("---\n\n")
+			if err != nil {
+				return "", err
+			}
 		}
 	}
 

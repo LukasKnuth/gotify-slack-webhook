@@ -60,7 +60,8 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 		if err != nil {
 			endpoint.String(http.StatusBadRequest, "Could not render result")
 		}
-		msg := gotify.ToMessage(rendered)
+		title := payload.Title()
+		msg := gotify.ToMessage(rendered, title)
 		err = gotify.SendMessage(&msg, endpoint.Param("app_token"))
 		if err != nil {
 			_ = c.msgHandler.SendMessage(plugin.Message{
@@ -69,7 +70,7 @@ func (c *Plugin) RegisterWebhook(basePath string, mux *gin.RouterGroup) {
 				Message: err.Error(),
 			})
 		}
-		endpoint.String(http.StatusOK, "OK")
+		endpoint.String(http.StatusOK, "ok")
 	})
 }
 

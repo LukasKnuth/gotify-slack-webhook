@@ -7,6 +7,7 @@ Allows Gotify to receive [Slack Incoming Webhooks](https://api.slack.com/messagi
 **Support**
 
 - Read-only blocks from [Slack Block Kit](https://api.slack.com/reference/block-kit/blocks)
+- Most properties from [Legacy Message Attachments](https://docs.slack.dev/legacy/legacy-messaging/legacy-secondary-message-attachments/)
 - Buttons pointing to URLs
 - Handles any non-supported block by stripping it
 - Does **NOT** implement any Slack specific interaction blocks (these are stripped)
@@ -116,6 +117,7 @@ If you have ideas how to automate the process, I'd love to review your PR.
 
 - [Slack Incoming Webhook documentation](https://api.slack.com/messaging/webhooks)
 - [Slack BlockKit](https://api.slack.com/block-kit)
+- [Legacy Message Attachments](https://docs.slack.dev/legacy/legacy-messaging/legacy-secondary-message-attachments/)
 - [Gotify Plugin - Getting started](https://gotify.net/docs/plugin)
 - [Gotify Plugin - Reference](https://gotify.net/docs/plugin-write)
 - [Gotify Plugin API](https://pkg.go.dev/github.com/gotify/plugin-api)
