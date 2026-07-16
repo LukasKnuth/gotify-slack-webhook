@@ -24,7 +24,7 @@ build arch os="linux" :
   #!/usr/bin/env bash
   set -euxo pipefail
   mkdir -p _build
-  # NOTE: Drop 2 characs because toolchain is "go1.2.3" and image is tagged with just version
+  # NOTE: Drop 2 chars, toolchain is "go1.2.3" but image is tagged "1.2.3"
   version=$(go mod edit -json | jq -r '.Toolchain[2:]')
   docker run --rm -v "$PWD/.:/mnt" -w /mnt gotify/build:${version}-{{os}}-{{arch}} go build -mod=readonly -a -installsuffix cgo -ldflags="-w -s" -buildmode=plugin -o "_build/{{plugin-name}}-{{os}}-{{arch}}.so"
 
